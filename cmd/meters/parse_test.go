@@ -205,6 +205,79 @@ func TestParseHeaders(t *testing.T) {
 	}
 }
 
+// TestParseLegendExcludesNonBandLabels verifies that parseLegend does not
+// include non-band cells (e.g., the edition date cell "1/24/2026") in the
+// bands slice. All band labels must be valid score band names.
+func TestParseLegendExcludesNonBandLabels(t *testing.T) {
+	f, err := openXLSX(fixturePath(t))
+	if err != nil {
+		t.Fatalf("openXLSX failed: %v", err)
+	}
+	defer f.Close()
+
+	sheet, err := findSheet(f)
+	if err != nil {
+		t.Fatalf("findSheet failed: %v", err)
+	}
+
+	bands, markers, err := parseLegend(f, sheet)
+	if err != nil {
+		t.Fatalf("parseLegend failed: %v", err)
+	}
+
+	// Valid score band labels
+	validBandLabels := map[string]bool{
+		"V High":  true,
+		"High":    true,
+		"Average": true,
+		"Low":     true,
+		"V Low":   true,
+	}
+
+	// Valid marker labels
+	validMarkerLabels := map[string]bool{
+		"missing":           true,
+		"important_missing": true,
+		"optional":          true,
+		"no_info":           true,
+	}
+
+	// Check bands: no date-like or unrecognized labels
+	for _, b := range bands {
+		if !validBandLabels[b.label] {
+			t.Errorf("unexpected band label %q from legend; expected one of V High/High/Average/Low/V Low\n"+
+				"This indicates a non-band cell (e.g., edition date) leaked into the legend parser.",
+				b.label)
+		}
+	}
+
+	// Check markers: no unrecognized labels
+	for _, m := range markers {
+		if !validMarkerLabels[m.label] {
+			t.Errorf("unexpected marker label %q from legend; expected one of missing/important_missing/optional/no_info", m.label)
+		}
+	}
+
+	// Verify exact count: exactly 5 score bands
+	if len(bands) != 5 {
+		t.Errorf("expected exactly 5 score bands, got %d (may include non-band cells)", len(bands))
+	}
+
+	// Verify all 5 are present
+	for _, lbl := range []string{"V High", "High", "Average", "Low", "V Low"} {
+		found := false
+		for _, b := range bands {
+			if b.label == lbl {
+				found = true
+				break
+			}
+		}
+		if !found {
+			t.Errorf("missing expected band label %q", lbl)
+		}
+	}
+}
+
 func TestScanEditionDate(t *testing.T) {
 	f, err := openXLSX(fixturePath(t))
 	if err != nil {
@@ -223,5 +296,32 @@ func TestScanEditionDate(t *testing.T) {
 	}
 	if !hasDigit(date) {
 		t.Errorf("scanEditionDate returned %q, expected a date string with digits", date)
+	}
+}
+
+// TestScanEditionDateISO8601 verifies that the edition date is returned in ISO
+// 8601 format (YYYY-MM-DD). Plan 02 specifies "Edition date from row 1 col
+// ~47-48 is captured as ISO 8601 string". This enforces that requirement.
+func TestScanEditionDateISO8601(t *testing.T) {
+	f, err := openXLSX(fixturePath(t))
+	if err != nil {
+		t.Fatalf("openXLSX failed: %v", err)
+	}
+	defer f.Close()
+
+	sheet, err := findSheet(f)
+	if err != nil {
+		t.Fatalf("findSheet failed: %v", err)
+	}
+
+	date := scanEditionDate(f, sheet)
+	if date == "" {
+		t.Fatal("scanEditionDate returned empty string")
+	}
+
+	// Check that the date matches ISO 8601 format: YYYY-MM-DD
+	// The edition date "1/24/2026" is US format; the Plan requires ISO 8601.
+	if len(date) < 10 || date[4] != '-' || date[7] != '-' {
+		t.Errorf("edition date %q is not ISO 8601 format (expected YYYY-MM-DD)", date)
 	}
 }

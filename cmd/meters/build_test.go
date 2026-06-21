@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -116,6 +119,158 @@ func TestBuildGoldenFile(t *testing.T) {
 	}
 	if differences > 0 {
 		t.Fatalf("output differs in %d lines (excluding fetched_at)", differences)
+	}
+}
+
+// setupBuildTest copies the meters.xlsx fixture into a temp directory and
+// changes to that directory. Returns a cleanup function that restores the
+// original working directory. The meter fixture must be resolvable via the
+// candidates list in TestBuildGoldenFile.
+func setupBuildTest(t *testing.T) (tmpDir string, cleanup func()) {
+	t.Helper()
+
+	fixturePath := ""
+	for _, p := range []string{
+		"../../testdata/meters.xlsx",
+		"testdata/meters.xlsx",
+		"../testdata/meters.xlsx",
+	} {
+		if _, err := os.Stat(p); err == nil {
+			fixturePath = p
+			break
+		}
+	}
+	if fixturePath == "" {
+		t.Fatal("could not find testdata/meters.xlsx")
+	}
+
+	absFixture, err := filepath.Abs(fixturePath)
+	if err != nil {
+		t.Fatalf("resolve fixture path: %v", err)
+	}
+
+	tmpDir = t.TempDir()
+	srcData, err := os.ReadFile(absFixture)
+	if err != nil {
+		t.Fatalf("read fixture: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(tmpDir, "meters.xlsx"), srcData, 0644); err != nil {
+		t.Fatalf("copy fixture: %v", err)
+	}
+
+	origDir, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Chdir(tmpDir); err != nil {
+		t.Fatal(err)
+	}
+
+	cleanup = func() {
+		os.Chdir(origDir)
+	}
+	return tmpDir, cleanup
+}
+
+// captureStderr runs the given function and returns everything written to
+// stderr during its execution.
+func captureStderr(fn func()) string {
+	r, w, _ := os.Pipe()
+	origStderr := os.Stderr
+	os.Stderr = w
+
+	fn()
+
+	w.Close()
+	os.Stderr = origStderr
+
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	r.Close()
+	return buf.String()
+}
+
+// TestBuildVerboseOutput verifies that running build with --verbose flag
+// produces the expected progress messages on stderr.
+func TestBuildVerboseOutput(t *testing.T) {
+	tmpDir, cleanup := setupBuildTest(t)
+	defer cleanup()
+	_ = tmpDir
+
+	stderrOutput := captureStderr(func() {
+		if err := runBuild(true); err != nil {
+			t.Fatalf("runBuild(true) failed: %v", err)
+		}
+	})
+
+	// Must contain the expected progress messages from build.go
+	checks := []string{
+		"read ",
+		"bucketed ",
+		"wrote data.json",
+	}
+	for _, check := range checks {
+		if !strings.Contains(stderrOutput, check) {
+			t.Errorf("verbose output should contain %q, got:\n%s", check, stderrOutput)
+		}
+	}
+}
+
+// TestBuildNonVerboseOutput verifies that running build without --verbose
+// produces no stderr output on success.
+func TestBuildNonVerboseOutput(t *testing.T) {
+	tmpDir, cleanup := setupBuildTest(t)
+	defer cleanup()
+	_ = tmpDir
+
+	stderrOutput := captureStderr(func() {
+		if err := runBuild(false); err != nil {
+			t.Fatalf("runBuild(false) failed: %v", err)
+		}
+	})
+
+	if stderrOutput != "" {
+		t.Errorf("non-verbose build produced unexpected stderr output:\n%s", stderrOutput)
+	}
+}
+
+// TestBuildBandLabelsValid verifies that all band labels in the data.json
+// output are valid score band names (V High, High, Average, Low, V Low).
+// This ensures no non-band cells (e.g., edition date) leak into band labels.
+func TestBuildBandLabelsValid(t *testing.T) {
+	tmpDir, cleanup := setupBuildTest(t)
+	defer cleanup()
+	_ = tmpDir
+
+	if err := runBuild(false); err != nil {
+		t.Fatalf("runBuild failed: %v", err)
+	}
+
+	raw, err := os.ReadFile("data.json")
+	if err != nil {
+		t.Fatalf("read data.json: %v", err)
+	}
+
+	var data DataJSON
+	if err := json.Unmarshal(raw, &data); err != nil {
+		t.Fatalf("parse data.json: %v", err)
+	}
+
+	validBands := map[string]bool{
+		"V High": true,
+		"High":   true,
+		"Average": true,
+		"Low":    true,
+		"V Low":  true,
+	}
+
+	for ri, row := range data.Rows {
+		for col, label := range row.Bands {
+			if !validBands[label] {
+				t.Errorf("row %d, column %q: invalid band label %q; expected one of V High/High/Average/Low/V Low",
+					ri, col, label)
+			}
+		}
 	}
 }
 
