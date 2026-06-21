@@ -1,0 +1,665 @@
+/* ============================================================
+   1. CSS Custom Properties
+   ============================================================ */
+:root {
+  /* Surface & Text Colors */
+  --bg-page: #ffffff;
+  --bg-alt-row: #f8f9fa;
+  --bg-header: #1a1a2e;
+  --bg-sidebar: #f4f5f7;
+  --bg-topbar: #1a1a2e;
+  --bg-legend: #ffffff;
+  --bg-footer: #f8f9fa;
+  --border-table: #dee2e6;
+  --text-header: #ffffff;
+  --text-body: #333333;
+  --text-heading: #1a1a2e;
+  --text-muted: #6b7280;
+  --text-link: #2563eb;
+  --accent: #2563eb;
+  --search-highlight: #fef08a;
+
+  /* Typography */
+  --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+
+  /* Density cell padding (default: Comfortable) */
+  --density-cell-padding-top: 6px;
+  --density-cell-padding-bottom: 6px;
+  --density-cell-padding-left: 8px;
+  --density-cell-padding-right: 8px;
+
+  /* Brand sticky column offset (set by JS) */
+  --brand-sticky-left: 150px;
+}
+
+/* ============================================================
+   2. Reset / Base
+   ============================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-stack);
+  background: var(--bg-page);
+  color: var(--text-body);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   3. Layout
+   ============================================================ */
+
+/* Top bar */
+#top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: var(--bg-topbar);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  z-index: 50;
+  gap: 12px;
+}
+
+#search-input {
+  flex-grow: 1;
+  max-width: 400px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: var(--font-stack);
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-header);
+  outline: none;
+}
+
+#search-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#search-input:focus {
+  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+#results-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  white-space: nowrap;
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Sidebar + table container */
+.content-area {
+  display: flex;
+  margin-top: 48px;
+}
+
+/* Sidebar */
+#sidebar {
+  width: 280px;
+  background: var(--bg-sidebar);
+  overflow-y: auto;
+  height: calc(100vh - 48px - 32px);
+  position: sticky;
+  top: 48px;
+  flex-shrink: 0;
+}
+
+.sidebar-collapsed #sidebar {
+  display: none;
+}
+
+/* Table wrapper */
+#table-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  min-width: 0;
+}
+
+/* ============================================================
+   4. Legend Bar
+   ============================================================ */
+#legend-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 16px;
+  background: var(--bg-legend);
+  border-bottom: 1px solid var(--border-table);
+}
+
+.legend-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.legend-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   5. Table
+   ============================================================ */
+#meters-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+#table-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th {
+  background: var(--bg-header);
+  color: var(--text-header);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 8px;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+th:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sort-indicator {
+  margin-left: 4px;
+  color: var(--accent);
+  font-size: 10px;
+}
+
+td {
+  padding: var(--density-cell-padding-top) var(--density-cell-padding-right) var(--density-cell-padding-bottom) var(--density-cell-padding-left);
+  border-bottom: 1px solid var(--border-table);
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ============================================================
+   6. Sticky Columns
+   ============================================================ */
+
+/* Model column (column 1) */
+th:nth-child(1),
+td:nth-child(1) {
+  position: sticky;
+  left: 0;
+  z-index: 5;
+  background: var(--bg-page);
+}
+
+th:nth-child(1) {
+  z-index: 11;
+  background: var(--bg-header);
+}
+
+/* Brand column (column 2) */
+th:nth-child(2),
+td:nth-child(2) {
+  position: sticky;
+  left: var(--brand-sticky-left);
+  z-index: 4;
+  background: var(--bg-page);
+}
+
+th:nth-child(2) {
+  z-index: 10;
+  background: var(--bg-header);
+}
+
+/* Opaque backgrounds for sticky body cells */
+td:nth-child(1),
+td:nth-child(2) {
+  background: var(--bg-page);
+}
+
+tr:nth-child(even) td:nth-child(1),
+tr:nth-child(even) td:nth-child(2) {
+  background: var(--bg-alt-row);
+}
+
+/* ============================================================
+   7. Row Alternating + Hover
+   ============================================================ */
+tr:nth-child(even) td {
+  background: var(--bg-alt-row);
+}
+
+tr:hover td {
+  background: rgba(37, 99, 235, 0.04) !important;
+  transition: background-color 0.1s ease;
+}
+
+tr {
+  cursor: pointer;
+}
+
+/* ============================================================
+   8. Density Modes
+   ============================================================ */
+.density-compact td {
+  padding: 2px 6px 2px 4px;
+}
+
+.density-comfortable td {
+  padding: 6px 10px 6px 8px;
+}
+
+.density-spacious td {
+  padding: 12px 14px 12px 16px;
+}
+
+/* ============================================================
+   9. Sidebar Components
+   ============================================================ */
+#sidebar h3 {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-heading);
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid var(--border-table);
+}
+
+.filter-group {
+  padding: 4px 16px 12px;
+}
+
+.filter-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+input[type="checkbox"] {
+  accent-color: var(--accent);
+}
+
+.numeric-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.numeric-filter label {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0;
+}
+
+.numeric-filter input[type="number"] {
+  width: 70px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid var(--border-table);
+  border-radius: 3px;
+  font-family: var(--font-stack);
+}
+
+.clear-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  font-size: 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-stack);
+}
+
+#sidebar .clear-btn {
+  width: 100%;
+}
+
+.clear-btn:hover {
+  opacity: 0.9;
+}
+
+/* ============================================================
+   10. Density Toggle (in top bar)
+   ============================================================ */
+#density-toggle {
+  display: flex;
+  gap: 0;
+}
+
+.density-btn {
+  font-size: 11px;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-family: var(--font-stack);
+  line-height: 1.3;
+}
+
+.density-btn:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.density-btn:last-child {
+  border-radius: 0 3px 3px 0;
+}
+
+.density-btn + .density-btn {
+  border-left: none;
+}
+
+.density-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+}
+
+/* ============================================================
+   11. Column Visibility Dropdown
+   ============================================================ */
+#column-visibility-btn {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  border-radius: 3px;
+  font-family: var(--font-stack);
+  white-space: nowrap;
+  position: relative;
+}
+
+#column-visibility-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+#column-visibility-menu,
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: white;
+  border: 1px solid var(--border-table);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  min-width: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+#column-visibility-menu[hidden],
+.dropdown-menu[hidden] {
+  display: none;
+}
+
+#column-visibility-menu #column-show-all,
+#column-visibility-menu #column-hide-all,
+.dropdown-menu label {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-table);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-stack);
+  color: var(--text-body);
+}
+
+#column-visibility-menu #column-show-all:hover,
+#column-visibility-menu #column-hide-all:hover {
+  background: var(--bg-sidebar);
+}
+
+#column-checklist label,
+.dropdown-menu label {
+  display: block;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+#column-checklist label:hover,
+.dropdown-menu label:hover {
+  background: var(--bg-alt-row);
+}
+
+/* ============================================================
+   12. Search Match Highlight
+   ============================================================ */
+mark.search-match {
+  background: var(--search-highlight);
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 1px;
+}
+
+/* ============================================================
+   13. Mobile Sidebar Drawer (<768px)
+   ============================================================ */
+@media (max-width: 767px) {
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85vw;
+    min-width: 280px;
+    max-width: 360px;
+    height: 100vh;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 200ms ease-out;
+    display: block;
+    overscroll-behavior: contain;
+  }
+
+  #sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar-collapsed #sidebar {
+    display: block;
+  }
+
+  #sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 99;
+  }
+
+  #sidebar-backdrop.hidden {
+    display: none;
+  }
+
+  #sidebar-close {
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--text-body);
+    padding: 4px;
+    z-index: 1;
+  }
+}
+
+/* ============================================================
+   14. Mobile Responsive
+   ============================================================ */
+@media (max-width: 1024px) {
+  #table-wrapper {
+    overflow-x: auto;
+  }
+  th, td {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 767px) {
+  #top-bar {
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  #search-input {
+    max-width: 100%;
+  }
+
+  #results-count {
+    min-width: auto;
+    font-size: 10px;
+  }
+}
+
+/* ============================================================
+   15. Loading / Empty / Error States
+   ============================================================ */
+.state-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px;
+  text-align: center;
+}
+
+.state-overlay[hidden] {
+  display: none;
+}
+
+.state-overlay h2 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-heading);
+}
+
+.state-overlay p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e0e0e0;
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================
+   16. Footer
+   ============================================================ */
+#page-footer {
+  height: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 16px;
+  background: var(--bg-footer);
+  border-top: 1px solid var(--border-table);
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+/* ============================================================
+   17. Focus Indicators
+   ============================================================ */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+input[type="search"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+/* ============================================================
+   18. Scrollbar Styling
+   ============================================================ */
+#sidebar::-webkit-scrollbar,
+#table-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+#sidebar::-webkit-scrollbar-thumb,
+#table-wrapper::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-track,
+#table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   Reduced Motion
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+
+  #sidebar {
+    transition: none;
+  }
+
+  tr:hover td {
+    transition: none;
+  }
+}
