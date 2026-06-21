@@ -28,7 +28,11 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 4. Running `meters build` on a structurally invalid or changed sheet exits non-zero with a clear error message listing expected vs actual structure (headers count, column names, legend format)
 5. Running the full pipeline (`fetch` + `build`) on the reference `meters.xlsx` fixture produces deterministic, identical output across runs
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 01-01-PLAN.md -- Foundation + fetch subcommand (wave 1)
+- [ ] 01-02-PLAN.md -- Build subcommand with parse, color, and data.json emission (wave 2)
 
 ### Phase 2: Frontend Table + Polish
 **Goal**: Users can browse, sort, and filter across all 940+ multimeter specs in a fast, zero-dependency HTML table with no build step
@@ -70,6 +74,6 @@ Phases execute in numeric order: 1 --> 2 --> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CLI Pipeline | 0/0 | Not started | - |
+| 1. CLI Pipeline | 0/2 | Planning | - |
 | 2. Frontend Table + Polish | 0/0 | Not started | - |
 | 3. CI/CD & Deployment | 0/0 | Not started | - |
