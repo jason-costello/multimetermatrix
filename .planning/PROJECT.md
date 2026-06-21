@@ -10,15 +10,14 @@ Users can quickly find and compare handheld multimeters by filtering and sorting
 
 ## Requirements
 
-### Validated
+### Validated (Phase 1: CLI Pipeline)
 
-(None yet — ship to validate)
+- [x] Go CLI: `fetch` subcommand — download xlsx, validate magic bytes + size
+- [x] Go CLI: `build` subcommand — parse xlsx → `data.json` with headers, values, bands, flags
+- [x] Color bucketing: nearest Euclidean RGB distance for score bands, exact match for categorical markers
 
 ### Active
 
-- [ ] Go CLI: `fetch` subcommand — download xlsx, validate magic bytes + size
-- [ ] Go CLI: `build` subcommand — parse xlsx → `data.json` with headers, values, bands, flags
-- [ ] Color bucketing: nearest Euclidean RGB distance for score bands, exact match for categorical markers
 - [ ] Static frontend: table view with all 51 columns, ~940 rows
 - [ ] Column sort: click header to toggle asc/desc
 - [ ] Facet filters: checkbox lists for bands/flags columns, free-text/range for raw values
@@ -54,10 +53,10 @@ Users can quickly find and compare handheld multimeters by filtering and sorting
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Go CLI for data pipeline | excelize is the best Go xlsx library; single binary, easy CI | — Pending |
+| Go CLI for data pipeline | excelize is the best Go xlsx library; single binary, easy CI | Validated Phase 1 |
 | Plain JS frontend (no framework) | GitHub Pages compatibility, zero build step, small scope | — Pending |
-| Color bucketing via Euclidean RGB distance | Google Sheets conditional formatting produces interpolated gradient colors, not exact legend matches | — Pending |
-| `data.json` committed to repo | Simplifies GitHub Pages serving; avoids cross-origin fetch issues | — Pending |
+| Color bucketing via Euclidean RGB distance | Google Sheets conditional formatting produces interpolated gradient colors, not exact legend matches | Validated Phase 1 |
+| `data.json` committed to repo | Simplifies GitHub Pages serving; avoids cross-origin fetch issues | Validated Phase 1 |
 
 ---
-*Last updated: 2026-06-20 after initialization*
+*Last updated: 2026-06-21 after Phase 1 completion*
