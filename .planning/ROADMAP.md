@@ -8,7 +8,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 
 ## Phases
 
-- [ ] **Phase 1: CLI Pipeline** - Go CLI that downloads xlsx, parses it, buckets colors, and emits validated data.json
+- [x] **Phase 1: CLI Pipeline** - Go CLI that downloads xlsx, parses it, buckets colors, and emits validated data.json (completed 2026-06-21)
 - [ ] **Phase 2: Frontend Table + Polish** - Sortable, filterable HTML table with band faceting, legend, responsive design
 - [ ] **Phase 3: CI/CD & Deployment** - Weekly auto-refresh and GitHub Pages deployment via GitHub Actions
 
@@ -39,7 +39,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md -- Build subcommand with parse, color, and data.json emission (wave 2)
+- [x] 01-02-PLAN.md -- Build subcommand with parse, color, and data.json emission (wave 2)
 
 ### Phase 2: Frontend Table + Polish
 
@@ -85,6 +85,6 @@ Phases execute in numeric order: 1 --> 2 --> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CLI Pipeline | 1/2 | In Progress|  |
+| 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
 | 2. Frontend Table + Polish | 0/0 | Not started | - |
 | 3. CI/CD & Deployment | 0/0 | Not started | - |
