@@ -212,6 +212,12 @@ assertEqual(parseNumericValue("v"), null, '"v" -> null');
 // "x" -> null
 assertEqual(parseNumericValue("x"), null, '"x" -> null');
 
+// "10MΩ" -> 10 (M=mega not in multipliers, Ω stripped by regex)
+assertEqual(parseNumericValue("10MΩ"), 10, '"10MΩ" -> 10 (mega not in multiplier table)');
+
+// "2.5K" -> 2500 (decimal * 1000)
+assertEqual(parseNumericValue("2.5K"), 2500, '"2.5K" -> 2500 (decimal kilo multiplier)');
+
 // ---------------------------------------------------------------------------
 // 4. getCellColors tests
 // ---------------------------------------------------------------------------

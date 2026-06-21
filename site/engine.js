@@ -56,8 +56,10 @@ export function parseNumericValue(value) {
   if (!match) return null;
   const num = parseFloat(match[1]);
   if (isNaN(num)) return null;
-  const unitChar = match[2].toLowerCase()[0] || "";
-  const multipliers = { k: 1000, m: 0.001, u: 0.000001, n: 0.000000001, p: 0.000000000001 };
+  const unitChar = match[2][0] || "";
+  // Case-sensitive multiplier: K=kilo, m=milli, u=micro, n=nano, p=pico.
+  // Uppercase M (mega) is intentionally excluded — not present in our data.
+  const multipliers = { k: 1000, K: 1000, m: 0.001, u: 0.000001, n: 0.000000001, p: 0.000000000001 };
   const mult = multipliers[unitChar] || 1;
   return num * mult;
 }
