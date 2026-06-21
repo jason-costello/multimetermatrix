@@ -124,6 +124,7 @@ async function loadData() {
 
     initUI(data);
     buildFiltersUI(data);
+    buildColumnVisibilityMenu(data);
     applyAndRender();
   } catch (err) {
     el.loadingState.hidden = true;
@@ -298,6 +299,9 @@ function applyAndRender() {
 
   // Toggle empty state
   el.emptyState.hidden = result.length !== 0;
+
+  // Update active filter count badge
+  updateFilterCount();
 }
 
 // ===========================================================================
@@ -420,11 +424,13 @@ function buildFiltersUI(data) {
   var numCols = getNumericColumns();
   for (var ni = 0; ni < numCols.length; ni++) {
     var ncol = numCols[ni];
-    var nHtml = '<div class="numeric-filter-group">';
+    var nHtml = '<div class="filter-group-item">';
     nHtml += '<label class="filter-group-label">' + escapeHtml(ncol) + '</label>';
-    nHtml += '<div class="numeric-range">';
-    nHtml += '<label>Min <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="min" step="any"></label>';
-    nHtml += '<label>Max <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="max" step="any"></label>';
+    nHtml += '<div class="numeric-filter">';
+    nHtml += '<label>Min</label><input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="min" step="any">';
+    nHtml += '</div>';
+    nHtml += '<div class="numeric-filter">';
+    nHtml += '<label>Max</label><input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="max" step="any">';
     nHtml += '</div></div>';
     el.numFilters.insertAdjacentHTML('beforeend', nHtml);
   }
@@ -503,11 +509,218 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
 
-// Wire clearAllFilters to UI buttons after DOM ready
+// ===========================================================================
+// Column Visibility
+// ===========================================================================
+
+/**
+ * Build column visibility checkbox menu from data columns.
+ * Called once after initUI.
+ * @param {Object} data - the full data.json object
+ */
+function buildColumnVisibilityMenu(data) {
+  var html = '';
+  for (var i = 0; i < data.columns.length; i++) {
+    var col = data.columns[i];
+    html += '<label><input type="checkbox" data-col="' + escapeHtml(col) + '" checked> ' + escapeHtml(col) + '</label>';
+  }
+  el.colChecklist.insertAdjacentHTML('beforeend', html);
+}
+
+// ===========================================================================
+// Row Density
+// ===========================================================================
+
+/**
+ * Restore density preference from localStorage and apply it.
+ */
+function restoreDensity() {
+  var mode = localStorage.getItem('rowDensity') || 'comfortable';
+  state.density = mode;
+  applyDensity(mode);
+}
+
+/**
+ * Apply density mode to the table and toggle active button state.
+ * @param {string} mode - 'compact', 'comfortable', or 'spacious'
+ */
+function applyDensity(mode) {
+  el.densityToggle.querySelectorAll('.density-btn').forEach(function (btn) {
+    btn.classList.toggle('active', btn.dataset.density === mode);
+  });
+  var table = document.getElementById('meters-table');
+  if (table) table.className = 'density-' + mode;
+  localStorage.setItem('rowDensity', mode);
+  state.density = mode;
+}
+
+// ===========================================================================
+// Mobile Drawer
+// ===========================================================================
+
+/**
+ * Close the mobile sidebar drawer and hide backdrop + close button.
+ */
+function closeMobileDrawer() {
+  el.sidebar.classList.remove('open');
+  el.sidebarBackdrop.hidden = true;
+  el.sidebarClose.hidden = true;
+}
+
+// ===========================================================================
+// Filter Count Badge
+// ===========================================================================
+
+/**
+ * Count active filters and update the badge on the sidebar toggle button.
+ */
+function updateFilterCount() {
+  var count = 0;
+  // Count band checkboxes checked
+  var bandValues = Object.values(state.activeFilters.band);
+  for (var bi = 0; bi < bandValues.length; bi++) {
+    count += bandValues[bi].size;
+  }
+  // Count flag checkboxes checked
+  var flagValues = Object.values(state.activeFilters.flag);
+  for (var fi = 0; fi < flagValues.length; fi++) {
+    count += flagValues[fi].size;
+  }
+  // Count numeric ranges with values
+  var numValues = Object.values(state.activeFilters.numeric);
+  for (var ni = 0; ni < numValues.length; ni++) {
+    var r = numValues[ni];
+    if (r.min !== null || r.max !== null) count++;
+  }
+  // Add search if non-empty
+  if (state.searchQuery) count++;
+  if (count > 0) {
+    el.filterCountBadge.textContent = count;
+    el.filterCountBadge.hidden = false;
+  } else {
+    el.filterCountBadge.hidden = true;
+  }
+}
+
+// ===========================================================================
+// Event Wiring (runs after DOM ready)
+// ===========================================================================
+
 document.addEventListener('DOMContentLoaded', function () {
+  // -- Clear filters buttons --
   el.clearFilters.addEventListener('click', clearAllFilters);
   var emptyBtn = el.emptyState.querySelector('.clear-btn');
   if (emptyBtn) emptyBtn.addEventListener('click', clearAllFilters);
-});
 
-// Call buildFiltersUI after data loads -- wired in loadData init path
+  // -- Column visibility dropdown --
+  el.colVisBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    el.colVisMenu.hidden = !el.colVisMenu.hidden;
+  });
+  document.addEventListener('click', function (e) {
+    if (!el.colVisMenu.contains(e.target) && e.target !== el.colVisBtn) {
+      el.colVisMenu.hidden = true;
+    }
+  });
+
+  // Column visibility checkbox changes
+  el.colChecklist.addEventListener('change', function (e) {
+    if (e.target.type !== 'checkbox') return;
+    var col = e.target.dataset.col;
+    if (!col) return;
+    if (e.target.checked) {
+      state.visibleColumns.add(col);
+    } else {
+      state.visibleColumns.delete(col);
+    }
+    applyAndRender();
+  });
+
+  // Show All / Hide All buttons
+  var showAllBtn = document.getElementById('column-show-all');
+  var hideAllBtn = document.getElementById('column-hide-all');
+  if (showAllBtn) {
+    showAllBtn.addEventListener('click', function () {
+      el.colChecklist.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = true;
+        state.visibleColumns.add(cb.dataset.col);
+      });
+      applyAndRender();
+    });
+  }
+  if (hideAllBtn) {
+    hideAllBtn.addEventListener('click', function () {
+      el.colChecklist.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+        cb.checked = false;
+        state.visibleColumns.delete(cb.dataset.col);
+      });
+      applyAndRender();
+    });
+  }
+
+  // -- Row density toggle --
+  el.densityToggle.addEventListener('click', function (e) {
+    var btn = e.target.closest('.density-btn');
+    if (!btn) return;
+    applyDensity(btn.dataset.density);
+  });
+
+  // -- Sidebar toggle --
+  el.sidebarToggle.addEventListener('click', function () {
+    document.body.classList.toggle('sidebar-collapsed');
+    if (window.innerWidth < 768) {
+      el.sidebar.classList.toggle('open');
+      el.sidebarBackdrop.hidden = !el.sidebar.classList.contains('open');
+      el.sidebarClose.hidden = !el.sidebar.classList.contains('open');
+    }
+  });
+
+  // -- Mobile drawer close handlers --
+  el.sidebarBackdrop.addEventListener('click', closeMobileDrawer);
+  el.sidebarClose.addEventListener('click', closeMobileDrawer);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && el.sidebar.classList.contains('open')) {
+      closeMobileDrawer();
+    }
+  });
+
+  // -- Responsive: reset drawer on resize above 768px --
+  var mediaQuery = window.matchMedia('(max-width: 767px)');
+  mediaQuery.addEventListener('change', function (e) {
+    if (!e.matches) {
+      // Above mobile breakpoint -- ensure sidebar is in normal state
+      el.sidebar.classList.remove('open');
+      el.sidebarBackdrop.hidden = true;
+      el.sidebarClose.hidden = true;
+    }
+  });
+
+  // Set initial sidebar state for mobile
+  if (window.innerWidth < 768) {
+    document.body.classList.add('sidebar-collapsed');
+  }
+
+  // -- Sticky header shadow --
+  var scrollRAF = null;
+  el.tableWrapper.addEventListener('scroll', function () {
+    if (scrollRAF) return;
+    scrollRAF = requestAnimationFrame(function () {
+      scrollRAF = null;
+      var header = document.getElementById('table-header');
+      if (header) {
+        header.classList.toggle('header-shadow', el.tableWrapper.scrollTop > 0);
+      }
+    });
+  });
+
+  // -- Window resize: recalculate sticky brand offset --
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      var modelWidth = (el.tableHeader.firstElementChild && el.tableHeader.firstElementChild.offsetWidth) || 150;
+      var table = document.getElementById('meters-table');
+      if (table) table.style.setProperty('--brand-sticky-left', modelWidth + 'px');
+    }, 100);
+  });
+});
