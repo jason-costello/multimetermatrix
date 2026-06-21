@@ -527,24 +527,24 @@ function highlightMatch(value, query) {
 | A3 | `fetch('./data.json')` succeeds on GitHub Pages from same-origin | Standard Stack | Always true for same-origin static files. The only failure mode is the file not existing. |
 | A4 | `replaceChildren()` is available in all target browsers | Batch DOM Insertion | Safari 14.1+ supports it (2021). Edge 86+ supports it. Chrome 86+ (2020). `replaceChildren()` offers no material advantage over `innerHTML=''` for this use case — fallback to `innerHTML=''` is safe and simpler. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Which columns get numeric range filters?** The CONTEXT.md D-02 says "Numeric (Price, Count, etc.)" — which specific columns beyond Price and Count should have range inputs? Strong numeric (>80%) columns include: Yr, Dsp, Fuse, Life, pF, mF, pF, uV, uA, BW, bw, uOhm. However, many have unit suffixes making direct comparison tricky. Recommendation: Start with Price, Count, Yr — add more only if users request them.
+1. **RESOLVED: Which columns get numeric range filters?** The CONTEXT.md D-02 says "Numeric (Price, Count, etc.)" — which specific columns beyond Price and Count should have range inputs? Strong numeric (>80%) columns include: Yr, Dsp, Fuse, Life, pF, mF, pF, uV, uA, BW, bw, uOhm. However, many have unit suffixes making direct comparison tricky. Recommendation: Start with Price, Count, Yr — add more only if users request them.
    - What we know: Price (77% numeric), Count (100%), Yr (71%)
    - What's unclear: Which unit-suffix columns justify custom parsing
    - Recommendation: Provide range inputs for Price, Count, Yr only in v1. Add BW and Life if time permits. The search box covers the rest.
 
-2. **What is the correct way to handle columns that appear in BOTH band and flag sections?** 41 columns have both band and flag data. In the sidebar, these columns appear in two different sections (Band Scores and Flags). The filter logic combines them with AND — a row must match both the selected band value(s) AND the selected flag value(s) for the same column. This is correct per D-11 (AND logic) but must be explicitly documented.
+2. **RESOLVED: What is the correct way to handle columns that appear in BOTH band and flag sections?** 41 columns have both band and flag data. In the sidebar, these columns appear in two different sections (Band Scores and Flags). The filter logic combines them with AND — a row must match both the selected band value(s) AND the selected flag value(s) for the same column. This is correct per D-11 (AND logic) but must be explicitly documented.
    - What we know: D-11 says AND logic applies
    - What's unclear: Whether a column in both sections should filter independently
    - Recommendation: Treat band and flag selections for the same column as independent AND conditions
 
-3. **Which columns should the sidebar Band Scores section include?** All 51 columns have some band data. Including all 51 band score checkbox groups in the sidebar would be overwhelming. The spec D-02 says "Band Scores (V Accuracy, I Accuracy, etc.)" implying only the relevant gradient columns — not Model/Brand/Light/Price which have spurious or single-valued bands.
+3. **RESOLVED: Which columns should the sidebar Band Scores section include?** All 51 columns have some band data. Including all 51 band score checkbox groups in the sidebar would be overwhelming. The spec D-02 says "Band Scores (V Accuracy, I Accuracy, etc.)" implying only the relevant gradient columns — not Model/Brand/Light/Price which have spurious or single-valued bands.
    - What we know: Brand (86% edition date leak), Model (29% edition date), Light (has N/A values)
    - What's unclear: Whether to include all 51 columns or filter out noise columns
    - Recommendation: Include columns that have 3+ distinct band values across the dataset (indicating meaningful gradient data). This naturally excludes Brand, Lights, and other noise columns.
 
-4. **How to handle the xlsx date parsing issue in CAT column?** Values like `III 600>` contain `>` which is an HTML entity. Must escape before HTML insertion.
+4. **RESOLVED: How to handle the xlsx date parsing issue in CAT column?** Values like `III 600>` contain `>` which is an HTML entity. Must escape before HTML insertion.
    - What we know: Cell values must be HTML-escaped
    - Recommendation: Always escape cell content before inserting via `insertAdjacentHTML`. The `escapeHtml()` function in Code Examples covers this.
 
