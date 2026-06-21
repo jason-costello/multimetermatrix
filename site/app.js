@@ -123,6 +123,7 @@ async function loadData() {
     }
 
     initUI(data);
+    buildFiltersUI(data);
     applyAndRender();
   } catch (err) {
     el.loadingState.hidden = true;
@@ -217,14 +218,10 @@ function renderTableHeader() {
   for (let i = 0; i < state.columns.length; i++) {
     const col = state.columns[i];
     if (!cols.has(col)) continue;
-    const sortDir = state.sortColumn === col ? state.sortDirection : 'none';
-    let indicator = '';
-    if (state.sortColumn === col) {
-      indicator = state.sortDirection === 'asc' ? ' ▲' : state.sortDirection === 'desc' ? ' ▼' : '';
-    }
+    var sortDir = state.sortColumn === col ? state.sortDirection : 'none';
     html += '<th scope="col" data-col="' + escapeHtml(col) + '" aria-sort="' + sortDir + '">'
       + escapeHtml(col)
-      + '<span class="sort-indicator">' + indicator + '</span>'
+      + '<span class="sort-indicator"></span>'
       + '</th>';
   }
   el.tableHeader.replaceChildren();
@@ -288,9 +285,10 @@ function applyAndRender() {
   // Apply sort
   result = sortRows(result, state.sortColumn, state.sortDirection);
 
-  // Re-render header (to update sort indicators) and body
+  // Re-render header and body
   renderTableHeader();
   renderTableBody(result);
+  updateSortIndicators();
 
   // Update sticky brand offset after layout
   updateStickyBrandOffset();
@@ -321,9 +319,195 @@ function updateStickyBrandOffset() {
 }
 
 // ===========================================================================
+// Clear All Filters
+// ===========================================================================
+
+/**
+ * Reset all filter state: search, band checkboxes, flag checkboxes, numeric inputs.
+ * Unchecks all sidebar checkboxes and clears range inputs.
+ */
+function clearAllFilters() {
+  state.searchQuery = '';
+  state.activeFilters = { band: {}, flag: {}, numeric: {} };
+  el.searchInput.value = '';
+  // Uncheck all checkboxes and clear all range inputs in sidebar
+  el.sidebar.querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
+  el.sidebar.querySelectorAll('input[type="number"]').forEach(function (inp) { inp.value = ''; });
+  applyAndRender();
+}
+
+// ===========================================================================
+// Search
+// ===========================================================================
+
+/**
+ * Handle search input after debounce fires.
+ * @param {string} value - trimmed search text
+ */
+function handleSearchInput(value) {
+  state.searchQuery = value;
+  applyAndRender();
+}
+
+// ===========================================================================
+// Sort Indicators
+// ===========================================================================
+
+/**
+ * Update sort indicator spans in table header based on current sort state.
+ * Removes all indicators first, then adds ▲/▼ to active column.
+ */
+function updateSortIndicators() {
+  var ths = el.tableHeader.querySelectorAll('th');
+  for (var i = 0; i < ths.length; i++) {
+    var th = ths[i];
+    var span = th.querySelector('.sort-indicator');
+    if (!span) continue;
+    var col = th.dataset.col;
+    if (state.sortColumn === col && state.sortDirection !== 'none') {
+      span.textContent = state.sortDirection === 'asc' ? ' ▲' : ' ▼';
+      th.setAttribute('aria-sort', state.sortDirection);
+    } else {
+      span.textContent = '';
+      th.setAttribute('aria-sort', 'none');
+    }
+  }
+}
+
+// ===========================================================================
+// Sidebar Filter UI
+// ===========================================================================
+
+/**
+ * Build sidebar filter controls from data.json structure.
+ * Creates band checkboxes, flag checkboxes, and numeric range inputs.
+ * @param {Object} data - the full data.json object
+ */
+function buildFiltersUI(data) {
+  // Band score checkboxes
+  var bandCols = getBandColumns();
+  for (var bi = 0; bi < bandCols.length; bi++) {
+    var col = bandCols[bi];
+    var groupHtml = '<div class="filter-group-item">';
+    groupHtml += '<label class="filter-group-label">' + escapeHtml(col) + '</label>';
+    groupHtml += '<div class="filter-checkboxes">';
+    var bandOptions = ['V High', 'High', 'Average', 'Low', 'V Low'];
+    for (var oi = 0; oi < bandOptions.length; oi++) {
+      var opt = bandOptions[oi];
+      groupHtml += '<label><input type="checkbox" data-filter-type="band" data-column="' + escapeHtml(col) + '" data-value="' + opt + '"> ' + opt + '</label>';
+    }
+    groupHtml += '</div></div>';
+    el.bandFilters.insertAdjacentHTML('beforeend', groupHtml);
+  }
+
+  // Flag checkboxes
+  var flagCols = getFlagColumns(data);
+  for (var fi = 0; fi < flagCols.length; fi++) {
+    var fcol = flagCols[fi];
+    var fHtml = '<div class="filter-group-item">';
+    fHtml += '<label class="filter-group-label">' + escapeHtml(fcol) + '</label>';
+    fHtml += '<div class="filter-checkboxes">';
+    var flagOptions = ['missing', 'important_missing', 'optional', 'no_info'];
+    for (var foi = 0; foi < flagOptions.length; foi++) {
+      var fopt = flagOptions[foi];
+      fHtml += '<label><input type="checkbox" data-filter-type="flag" data-column="' + escapeHtml(fcol) + '" data-value="' + fopt + '"> ' + fopt + '</label>';
+    }
+    fHtml += '</div></div>';
+    el.flagFilters.insertAdjacentHTML('beforeend', fHtml);
+  }
+
+  // Numeric range inputs
+  var numCols = getNumericColumns();
+  for (var ni = 0; ni < numCols.length; ni++) {
+    var ncol = numCols[ni];
+    var nHtml = '<div class="numeric-filter-group">';
+    nHtml += '<label class="filter-group-label">' + escapeHtml(ncol) + '</label>';
+    nHtml += '<div class="numeric-range">';
+    nHtml += '<label>Min <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="min" step="any"></label>';
+    nHtml += '<label>Max <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="max" step="any"></label>';
+    nHtml += '</div></div>';
+    el.numFilters.insertAdjacentHTML('beforeend', nHtml);
+  }
+}
+
+// ===========================================================================
 // Init
 // ===========================================================================
 
 document.addEventListener('DOMContentLoaded', function () {
   loadData();
+
+  // -- Search debounce --
+  var searchTimer = null;
+  el.searchInput.addEventListener('input', function (e) {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { handleSearchInput(e.target.value); }, 250);
+  });
+
+  // -- Column sort (event delegation on header row) --
+  el.tableHeader.addEventListener('click', function (e) {
+    var th = e.target.closest('th');
+    if (!th || !th.dataset.col) return;
+    var col = th.dataset.col;
+    if (state.sortColumn === col) {
+      // Cycle: asc -> desc -> none
+      state.sortDirection = state.sortDirection === 'asc' ? 'desc' : state.sortDirection === 'desc' ? 'none' : 'asc';
+    } else {
+      state.sortColumn = col;
+      state.sortDirection = 'asc';
+    }
+    if (state.sortDirection === 'none') {
+      state.sortColumn = null;
+    }
+    applyAndRender();
+  });
+
+  // -- Filter sidebar event delegation --
+  // Band / flag checkbox changes
+  el.sidebar.addEventListener('change', function (e) {
+    if (e.target.type !== 'checkbox') return;
+    var type = e.target.dataset.filterType;
+    if (!type) return;
+    var col = e.target.dataset.column;
+    var val = e.target.dataset.value;
+    if (!state.activeFilters[type][col]) {
+      state.activeFilters[type][col] = new Set();
+    }
+    if (e.target.checked) {
+      state.activeFilters[type][col].add(val);
+    } else {
+      state.activeFilters[type][col].delete(val);
+    }
+    // Clean up empty sets
+    if (state.activeFilters[type][col].size === 0) {
+      delete state.activeFilters[type][col];
+    }
+    applyAndRender();
+  });
+
+  // Numeric range inputs
+  el.sidebar.addEventListener('input', function (e) {
+    if (e.target.dataset.filterType !== 'numeric') return;
+    var col = e.target.dataset.column;
+    var bound = e.target.dataset.bound;
+    if (!state.activeFilters.numeric[col]) {
+      state.activeFilters.numeric[col] = { min: null, max: null };
+    }
+    var val = e.target.value;
+    state.activeFilters.numeric[col][bound] = val !== '' ? parseFloat(val) : null;
+    // Clean up empty entries
+    if (state.activeFilters.numeric[col].min === null && state.activeFilters.numeric[col].max === null) {
+      delete state.activeFilters.numeric[col];
+    }
+    applyAndRender();
+  });
 });
+
+// Wire clearAllFilters to UI buttons after DOM ready
+document.addEventListener('DOMContentLoaded', function () {
+  el.clearFilters.addEventListener('click', clearAllFilters);
+  var emptyBtn = el.emptyState.querySelector('.clear-btn');
+  if (emptyBtn) emptyBtn.addEventListener('click', clearAllFilters);
+});
+
+// Call buildFiltersUI after data loads -- wired in loadData init path
