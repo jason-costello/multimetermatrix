@@ -35,7 +35,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md -- Foundation + fetch subcommand (wave 1)
+- [x] 01-01-PLAN.md -- Foundation + fetch subcommand (wave 1)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -85,6 +85,6 @@ Phases execute in numeric order: 1 --> 2 --> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. CLI Pipeline | 0/2 | Planning | - |
+| 1. CLI Pipeline | 1/2 | In Progress|  |
 | 2. Frontend Table + Polish | 0/0 | Not started | - |
 | 3. CI/CD & Deployment | 0/0 | Not started | - |
