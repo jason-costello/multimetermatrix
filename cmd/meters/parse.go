@@ -110,6 +110,11 @@ skipLabel := func(v string) bool {
 		if strings.HasPrefix(v, ":") {
 			return true
 		}
+		// Exclude date-like cell values (e.g., edition date stamp from
+		// row 1 col ~47-48) so they do not leak into bands or markers.
+		if looksLikeDate(v) {
+			return true
+		}
 		return false
 	}
 
@@ -291,8 +296,9 @@ func parseDataRows(f *excelize.File, sheet string, headers []string) ([]Row, err
 }
 
 // scanEditionDate scans row 1 for a date-like string, checking columns
-// around col 47-48 (cells AU1, AV1). Returns the date string if found, or
-// an empty string if no recognizable date is found.
+// around col 47-48 (cells AU1, AV1). Returns the date string in ISO 8601
+// format (YYYY-MM-DD) if found, or an empty string if no recognizable date
+// is found.
 func scanEditionDate(f *excelize.File, sheet string) string {
 	// Check the known location first (AV1).
 	for _, ref := range []string{"AV1", "AU1"} {
@@ -302,7 +308,7 @@ func scanEditionDate(f *excelize.File, sheet string) string {
 		}
 		// Check if it looks like a date: contains digits.
 		if hasDigit(val) {
-			return val
+			return normalizeDate(val)
 		}
 	}
 
@@ -316,7 +322,7 @@ func scanEditionDate(f *excelize.File, sheet string) string {
 			continue
 		}
 		if looksLikeDate(val) {
-			return val
+			return normalizeDate(val)
 		}
 	}
 
@@ -352,6 +358,45 @@ func looksLikeDate(s string) bool {
 		}
 	}
 	return false
+}
+
+// normalizeDate attempts to parse a date string in common formats (US
+// M/D/YYYY, YYYY-MM-DD, etc.) and returns it in ISO 8601 format
+// (YYYY-MM-DD). If the date cannot be parsed, the original string is
+// returned unchanged.
+func normalizeDate(s string) string {
+	s = strings.TrimSpace(s)
+	if s == "" {
+		return s
+	}
+
+	// Already ISO 8601: YYYY-MM-DD.
+	if len(s) == 10 && s[4] == '-' && s[7] == '-' {
+		return s
+	}
+
+	// Try US format: M/D/YYYY or MM/DD/YYYY.
+	if strings.Contains(s, "/") {
+		parts := strings.Split(s, "/")
+		if len(parts) == 3 {
+			m := parts[0]
+			d := parts[1]
+			y := parts[2]
+			// Pad month and day to 2 digits.
+			if len(m) == 1 {
+				m = "0" + m
+			}
+			if len(d) == 1 {
+				d = "0" + d
+			}
+			if len(y) == 4 && len(m) == 2 && len(d) == 2 {
+				return y + "-" + m + "-" + d
+			}
+		}
+	}
+
+	// If we cannot parse it, return the original value unchanged.
+	return s
 }
 
 // getCellFillColor gets the fill color of a cell, stripped of alpha prefix.
