@@ -9,7 +9,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 ## Phases
 
 - [x] **Phase 1: CLI Pipeline** - Go CLI that downloads xlsx, parses it, buckets colors, and emits validated data.json (completed 2026-06-21)
-- [ ] **Phase 2: Frontend Table + Polish** - Sortable, filterable HTML table with band faceting, legend, responsive design
+- [x] **Phase 2: Frontend Table + Polish** - Sortable, filterable HTML table with band faceting, legend, responsive design (completed 2026-06-21)
 - [ ] **Phase 3: CI/CD & Deployment** - Weekly auto-refresh and GitHub Pages deployment via GitHub Actions
 
 ## Phase Details
@@ -62,12 +62,12 @@ Plans:
 Plans:
 **Wave 1** (parallel -- no file overlap)
 
-- [ ] 02-01-PLAN.md -- TDD: data processing engine (filter, sort, search, color, parse, escape) in site/engine.js + tests
-- [ ] 02-02-PLAN.md -- HTML page shell (index.html) + complete design system CSS (site/style.css)
+- [x] 02-01-PLAN.md -- TDD: data processing engine (filter, sort, search, color, parse, escape) in site/engine.js + tests
+- [x] 02-02-PLAN.md -- HTML page shell (index.html) + complete design system CSS (site/style.css)
 
 **Wave 2** (depends on Wave 1)
 
-- [ ] 02-03-PLAN.md -- Application JS (site/app.js): data loading, table rendering, sidebar, search, sort, filters, mobile drawer, polish
+- [x] 02-03-PLAN.md -- Application JS (site/app.js): data loading, table rendering, sidebar, search, sort, filters, mobile drawer, polish
 
 ### Phase 3: CI/CD & Deployment
 
@@ -95,5 +95,5 @@ Phases execute in numeric order: 1 --> 2 --> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
-| 2. Frontend Table + Polish | 0/3 | Planning  | - |
+| 2. Frontend Table + Polish | 3/3 | Complete   | 2026-06-21 |
 | 3. CI/CD & Deployment | 0/0 | Not started | - |
