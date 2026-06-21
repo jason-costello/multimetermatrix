@@ -30,9 +30,3 @@ func main() {
 	}
 }
 
-// buildCmd is the entry point for the build subcommand.
-// It is implemented in a later plan.
-func buildCmd(args []string) {
-	fmt.Fprintln(os.Stderr, "build: not yet implemented")
-	os.Exit(1)
-}
