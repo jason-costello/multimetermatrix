@@ -480,14 +480,14 @@ func fetchURL(url string) error {
 | A3 | The legend row (row 1) has exactly the cells with fills that define the scoring scheme. | Code Examples | Low risk -- confirmed by xlsx inspection (row 1 has distinct cell styles per column). If a column has no fill, that cells legend entry is undefined. |
 | A4 | Categorical marker fills use specific exact RGB values in the legend row, distinct from gradient score fills. | Architecture Patterns | LOW -- The CLAUDE.md states categorical markers use exact fill match. If they share fills with gradient colors, the exact-match logic could misclassify. Mitigation: verify against real data. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **How to differentiate score bands from categorical markers in the legend row?**
+1. **How to differentiate score bands from categorical markers in the legend row?** RESOLVED: keyword/single-char heuristic in parseLegend — cells containing "missing", "important", "optional", "no info", or single chars "x", "O", "?" are markers; 5 known score labels (V High through V Low) are bands. Fallback: any unrecognized label is treated as a band label.
    - What we know: Row 1 has both band labels (V High, High, Average, Low, V Low) and categorical markers (missing, important_missing, optional, no_info).
    - What's unclear: How to programmatically distinguish which legend cells are bands vs markers. Options: (a) fixed column ranges, (b) column naming conventions (e.g., columns with a "Score:" sub-header vs "Legend:"), (c) cell value pattern matching.
    - Recommendation: Inspect the xlsx sheet structure to determine the pattern. The shared strings showed "Score:" and "Legend:" as the first entries. The legend row likely has "Score:" and "Legend:" sub-headers that define the groups. During research-phase planning, inspect row 1 cell values against column positions to confirm the band/marker split heuristic.
 
-2. **Exact Euclidean distance threshold for categorical markers?**
+2. **Exact Euclidean distance threshold for categorical markers?** RESOLVED: zero tolerance — exact string match on fill color hex. If a fill doesn't exactly match any marker RGB, classify via nearest-neighbor against score bands. This is the simplest correct behavior per the recommendation.
    - What we know: D-08 says categorical markers use exact RGB match, not nearest-neighbor. D-07 says tie-breaking goes to higher score band. D-05 says linearized sRGB for score bands.
    - What's unclear: "Exact match" for markers means the cell's fill RGB must exactly equal the legend's marker RGB. But Google Sheets conditional formatting could produce interpolated fills that don't exactly match any marker RGB. Should there be a "close enough" threshold? D-08 is Claude's Discretion.
    - Recommendation: Use exact string match (no tolerance). If a fill falls between a marker color and a band color, it's not a marker -- classify it via nearest-neighbor against score bands. This is the simplest and most correct behavior. Only if cells known to be markers fail classification should a tolerance be added.

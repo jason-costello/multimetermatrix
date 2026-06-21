@@ -15,6 +15,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 ## Phase Details
 
 ### Phase 1: CLI Pipeline
+
 **Goal**: Developers can run `meters fetch && meters build` to produce a validated data.json from the Google Sheets xlsx export
 
 **Depends on**: Nothing (first phase)
@@ -22,6 +23,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 **Requirements**: PIPE-01, PIPE-02, PIPE-03, PIPE-04, PIPE-05, PIPE-06, PIPE-07, PIPE-08
 
 **Success Criteria** (what must be TRUE):
+
 1. Running `meters fetch` downloads the xlsx from the Google Sheets export URL, validates HTTP 200 + ZIP magic bytes (`PK`) + file size >= 10KB, and saves to disk
 2. Running `meters build` opens the xlsx with excelize, reads only sheet "6000+ count" (ignoring "Outsiders"), extracts row 1 legend (fill RGB to label), row 2 headers (51 columns), rows 3+ data, and produces a valid `data.json` with `edition_date`, `fetched_at`, `columns[]`, and `rows[]`
 3. Each row in `data.json` contains `values{}`, `bands{}`, `flags{}` -- score bands bucketed via nearest Euclidean distance (linearized sRGB or OKLab), categorical markers (x, O, ?) matched by exact RGB, white/no-fill cells left unlabeled
@@ -31,10 +33,16 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 **Plans**: 2 plans
 
 Plans:
+**Wave 1**
+
 - [ ] 01-01-PLAN.md -- Foundation + fetch subcommand (wave 1)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 01-02-PLAN.md -- Build subcommand with parse, color, and data.json emission (wave 2)
 
 ### Phase 2: Frontend Table + Polish
+
 **Goal**: Users can browse, sort, and filter across all 940+ multimeter specs in a fast, zero-dependency HTML table with no build step
 
 **Depends on**: Phase 1
@@ -42,6 +50,7 @@ Plans:
 **Requirements**: UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, UI-07, UI-08, UI-09, UI-10, UI-11, POL-01, POL-02, POL-03
 
 **Success Criteria** (what must be TRUE):
+
 1. Page loads and renders all 940+ rows and 51 columns from `data.json` as an HTML table with color-coded cell backgrounds (score band gradients + categorical marker colors) and a legend above the table explaining both
 2. Clicking any column header toggles sort direction (asc --> desc --> unsorted), and clicking a different column resorts by that column
 3. Free-text search across all columns and numeric range (min/max) inputs on key spec columns filter rows in real time, displaying "N of M results" -- band facet checkboxes (V High / High / Average / Low / V Low) and flag facet checkboxes (x / O / ?) combine with text search for compound filtering
@@ -52,6 +61,7 @@ Plans:
 **UI hint**: yes
 
 ### Phase 3: CI/CD & Deployment
+
 **Goal**: The site auto-refreshes weekly with up-to-date data from Google Sheets, deployed to GitHub Pages without committing data.json to git
 
 **Depends on**: Phase 1, Phase 2
@@ -59,6 +69,7 @@ Plans:
 **Requirements**: CI-01, CI-02, CI-03, CI-04
 
 **Success Criteria** (what must be TRUE):
+
 1. GitHub Actions workflow runs on schedule (weekly Monday 06:00 UTC) and can be triggered manually via `workflow_dispatch`
 2. Workflow executes checkout --> setup-go --> fetch --> build --> deploy end-to-end, producing a working GitHub Pages site with current data
 3. Deployment uses artifact-based upload (`upload-pages-artifact` + `deploy-pages`) with explicit concurrency control and `cancel-in-progress: false` to prevent race conditions
