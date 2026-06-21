@@ -30,12 +30,6 @@ func main() {
 	}
 }
 
-// fetchCmd is the entry point for the fetch subcommand.
-// It is implemented in fetch.go.
-func fetchCmd(args []string) {
-	// Implemented in fetch.go — stub for compilation.
-}
-
 // buildCmd is the entry point for the build subcommand.
 // It is implemented in a later plan.
 func buildCmd(args []string) {
