@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handheld Multimeter Specs Browser</title>
+  <link rel="stylesheet" href="site/style.css">
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <header id="top-bar">
+    <input type="search" id="search-input" placeholder="Search all columns..." aria-label="Search all columns">
+    <span id="results-count" aria-live="polite"></span>
+
+    <!-- Row Density Toggle -->
+    <div id="density-toggle">
+      <button class="density-btn" data-density="compact">Compact</button>
+      <button class="density-btn active" data-density="comfortable">Comfortable</button>
+      <button class="density-btn" data-density="spacious">Spacious</button>
+    </div>
+
+    <!-- Column Visibility -->
+    <button id="column-visibility-btn" aria-label="Toggle column visibility menu">Columns</button>
+    <div id="column-visibility-menu" class="dropdown-menu" hidden>
+      <button id="column-show-all">Show All</button>
+      <button id="column-hide-all">Hide All</button>
+      <div id="column-checklist"></div>
+    </div>
+
+    <!-- Sidebar Toggle -->
+    <button id="sidebar-toggle" aria-label="Toggle Filters" title="Toggle Filters">
+      Filters
+      <span id="filter-count-badge" hidden></span>
+    </button>
+  </header>
+
+  <!-- Sidebar Backdrop (mobile drawer) -->
+  <div id="sidebar-backdrop" class="backdrop" hidden aria-hidden="true"></div>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" role="complementary" aria-label="Filters">
+    <button id="sidebar-close" aria-label="Close filters" hidden>&#10005;</button>
+    <button id="clear-filters" class="clear-btn">Clear all filters</button>
+
+    <section id="numeric-filters">
+      <h3>Numeric Filters</h3>
+      <div class="filter-group" id="numeric-filters-container"></div>
+    </section>
+
+    <section id="band-filters">
+      <h3>Band Scores</h3>
+      <div class="filter-group" id="band-filters-container"></div>
+    </section>
+
+    <section id="flag-filters">
+      <h3>Flags</h3>
+      <div class="filter-group" id="flag-filters-container"></div>
+    </section>
+  </aside>
+
+  <!-- Legend Bar -->
+  <div id="legend-bar">
+    <div class="legend-row" id="legend-bands"></div>
+    <div class="legend-row" id="legend-markers"></div>
+  </div>
+
+  <!-- Table Wrapper -->
+  <div id="table-wrapper">
+    <!-- Loading State -->
+    <div id="loading-state" class="state-overlay">
+      <div class="spinner"></div>
+      <p>Loading data...</p>
+    </div>
+
+    <!-- Error State -->
+    <div id="error-state" class="state-overlay" hidden>
+      <h2>Unable to load data</h2>
+      <p>The data file could not be loaded. Please try refreshing the page.</p>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="state-overlay" hidden role="status">
+      <h2>No meters match your filters</h2>
+      <p>Try adjusting or clearing your filter selections.</p>
+      <button class="clear-btn">Clear all filters</button>
+    </div>
+
+    <!-- Meters Table -->
+    <table id="meters-table">
+      <thead id="table-header">
+        <tr id="header-row"></tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <footer id="page-footer">
+    <span id="footer-edition">Edition: <span id="edition-date"></span></span>
+    <span id="footer-refresh">Last updated: <span id="fetched-at"></span></span>
+  </footer>
+
+  <script type="module" src="site/engine.js"></script>
+  <script type="module" src="site/app.js"></script>
+</body>
+</html>
