@@ -131,6 +131,9 @@ body {
    4. Legend Bar
    ============================================================ */
 #legend-bar {
+  position: sticky;
+  top: 48px;
+  z-index: 8;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -169,7 +172,7 @@ body {
 
 #table-header {
   position: sticky;
-  top: 0;
+  top: calc(48px + var(--legend-bar-height, 44px));
   z-index: 10;
 }
 
