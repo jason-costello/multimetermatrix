@@ -27,6 +27,15 @@ const LEGEND_FLAG_COLORS = {
 };
 
 // ---------------------------------------------------------------------------
+// Column name abbreviation map (for filter labels)
+// ---------------------------------------------------------------------------
+
+const ABBREVIATION_MAP = {
+  'V Accuracy': 'Voltage Accuracy',
+  'I Accuracy': 'Current Accuracy',
+};
+
+// ---------------------------------------------------------------------------
 // Application state (immutable patterns: allRows read-only after init)
 // ---------------------------------------------------------------------------
 
@@ -115,9 +124,16 @@ async function loadData() {
     state.fetchedAt = data.fetched_at || '';
     state.visibleColumns = new Set(data.columns);
 
+    // Filter out rows where all values are empty or whitespace-only
+    state.allRows = state.allRows.filter(function(row) {
+      return Object.values(row.values).some(function(v) {
+        return v && typeof v === 'string' && v.trim() !== '';
+      });
+    });
+
     el.loadingState.hidden = true;
 
-    if (data.rows.length === 0) {
+    if (state.allRows.length === 0) {
       el.emptyState.hidden = false;
       return;
     }
@@ -179,6 +195,9 @@ function initUI(data) {
 
   // -- Measure legend bar height for sticky header offset --
   updateStickyOffsets();
+
+  // -- Initialize collapsible filter sections --
+  initCollapsibleSections();
 
   // -- Footer --
   el.editionDate.textContent = data.edition_date || '';
@@ -413,7 +432,7 @@ function buildFiltersUI(data) {
   for (var bi = 0; bi < bandCols.length; bi++) {
     var col = bandCols[bi];
     var groupHtml = '<div class="filter-group-item">';
-    groupHtml += '<label class="filter-group-label">' + escapeHtml(col) + '</label>';
+    groupHtml += '<label class="filter-group-label">' + escapeHtml(ABBREVIATION_MAP[col] || col) + '</label>';
     groupHtml += '<div class="filter-checkboxes">';
     var bandOptions = ['V High', 'High', 'Average', 'Low', 'V Low'];
     for (var oi = 0; oi < bandOptions.length; oi++) {
@@ -429,7 +448,7 @@ function buildFiltersUI(data) {
   for (var fi = 0; fi < flagCols.length; fi++) {
     var fcol = flagCols[fi];
     var fHtml = '<div class="filter-group-item">';
-    fHtml += '<label class="filter-group-label">' + escapeHtml(fcol) + '</label>';
+    fHtml += '<label class="filter-group-label">' + escapeHtml(ABBREVIATION_MAP[fcol] || fcol) + '</label>';
     fHtml += '<div class="filter-checkboxes">';
     var flagOptions = ['missing', 'important_missing', 'optional', 'no_info'];
     for (var foi = 0; foi < flagOptions.length; foi++) {
@@ -445,12 +464,10 @@ function buildFiltersUI(data) {
   for (var ni = 0; ni < numCols.length; ni++) {
     var ncol = numCols[ni];
     var nHtml = '<div class="filter-group-item">';
-    nHtml += '<label class="filter-group-label">' + escapeHtml(ncol) + '</label>';
-    nHtml += '<div class="numeric-filter">';
-    nHtml += '<label>Min</label><input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="min" step="any">';
-    nHtml += '</div>';
-    nHtml += '<div class="numeric-filter">';
-    nHtml += '<label>Max</label><input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="max" step="any">';
+    nHtml += '<label class="filter-group-label">' + escapeHtml(ABBREVIATION_MAP[ncol] || ncol) + '</label>';
+    nHtml += '<div class="numeric-filter-row">';
+    nHtml += '<label class="numeric-field">Min <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="min" step="any"></label>';
+    nHtml += '<label class="numeric-field">Max <input type="number" data-filter-type="numeric" data-column="' + escapeHtml(ncol) + '" data-bound="max" step="any"></label>';
     nHtml += '</div></div>';
     el.numFilters.insertAdjacentHTML('beforeend', nHtml);
   }
@@ -619,6 +636,35 @@ function updateFilterCount() {
     el.filterCountBadge.hidden = false;
   } else {
     el.filterCountBadge.hidden = true;
+  }
+}
+
+// ===========================================================================
+// Collapsible Filter Sections
+// ===========================================================================
+
+/**
+ * Initialize collapsible filter sections in the sidebar.
+ * Each section h3 is clickable — toggles .collapsed class on parent section.
+ * Default: Numeric open, Band Scores + Flags collapsed.
+ */
+function initCollapsibleSections() {
+  var sections = document.querySelectorAll('#sidebar .sidebar-section');
+  // Close Band Scores and Flags by default
+  var bandSection = document.getElementById('band-filters');
+  var flagSection = document.getElementById('flag-filters');
+  if (bandSection) bandSection.classList.add('collapsed');
+  if (flagSection) flagSection.classList.add('collapsed');
+
+  // Add click handler on each h3 within a sidebar section
+  for (var i = 0; i < sections.length; i++) {
+    var h3 = sections[i].querySelector('h3');
+    if (!h3) continue;
+    (function(section) {
+      h3.addEventListener('click', function() {
+        section.classList.toggle('collapsed');
+      });
+    })(sections[i]);
   }
 }
 
