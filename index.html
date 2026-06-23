@@ -21,11 +21,13 @@
     </div>
 
     <!-- Column Visibility -->
-    <button id="column-visibility-btn" aria-label="Toggle column visibility menu">Columns</button>
-    <div id="column-visibility-menu" class="dropdown-menu" hidden>
-      <button id="column-show-all">Show All</button>
-      <button id="column-hide-all">Hide All</button>
-      <div id="column-checklist"></div>
+    <div class="col-vis-wrapper">
+      <button id="column-visibility-btn" aria-label="Toggle column visibility menu">Columns</button>
+      <div id="column-visibility-menu" class="dropdown-menu" hidden>
+        <button id="column-show-all">Show All</button>
+        <button id="column-hide-all">Hide All</button>
+        <div id="column-checklist"></div>
+      </div>
     </div>
 
     <!-- Sidebar Toggle -->
@@ -43,17 +45,17 @@
     <button id="sidebar-close" aria-label="Close filters" hidden>&#10005;</button>
     <button id="clear-filters" class="clear-btn">Clear all filters</button>
 
-    <section id="numeric-filters">
+    <section id="numeric-filters" class="sidebar-section">
       <h3>Numeric Filters</h3>
       <div class="filter-group" id="numeric-filters-container"></div>
     </section>
 
-    <section id="band-filters">
+    <section id="band-filters" class="sidebar-section">
       <h3>Band Scores</h3>
       <div class="filter-group" id="band-filters-container"></div>
     </section>
 
-    <section id="flag-filters">
+    <section id="flag-filters" class="sidebar-section">
       <h3>Flags</h3>
       <div class="filter-group" id="flag-filters-container"></div>
     </section>
