@@ -177,6 +177,9 @@ function initUI(data) {
   }
   el.legendMarkers.innerHTML = flagHtml;
 
+  // -- Measure legend bar height for sticky header offset --
+  updateStickyOffsets();
+
   // -- Footer --
   el.editionDate.textContent = data.edition_date || '';
   if (data.fetched_at) {
@@ -319,6 +322,23 @@ function updateStickyBrandOffset() {
   var table = document.getElementById('meters-table');
   if (table) {
     table.style.setProperty('--brand-sticky-left', modelWidth + 'px');
+  }
+}
+
+// ===========================================================================
+// Sticky Legend/Header Offset
+// ===========================================================================
+
+/**
+ * Measure the legend bar height and set --legend-bar-height CSS custom property
+ * on the #table-header element for correct sticky positioning.
+ */
+function updateStickyOffsets() {
+  var legendBar = document.getElementById('legend-bar');
+  var tableHeader = document.getElementById('table-header');
+  if (legendBar && tableHeader) {
+    var h = legendBar.offsetHeight;
+    tableHeader.style.setProperty('--legend-bar-height', h + 'px');
   }
 }
 
@@ -718,6 +738,7 @@ document.addEventListener('DOMContentLoaded', function () {
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
+      updateStickyOffsets();
       var modelWidth = (el.tableHeader.firstElementChild && el.tableHeader.firstElementChild.offsetWidth) || 150;
       var table = document.getElementById('meters-table');
       if (table) table.style.setProperty('--brand-sticky-left', modelWidth + 'px');

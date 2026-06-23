@@ -131,6 +131,9 @@ body {
    4. Legend Bar
    ============================================================ */
 #legend-bar {
+  position: sticky;
+  top: 48px;
+  z-index: 8;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -169,7 +172,7 @@ body {
 
 #table-header {
   position: sticky;
-  top: 0;
+  top: calc(48px + var(--legend-bar-height, 44px));
   z-index: 10;
 }
 
@@ -260,8 +263,8 @@ tr:nth-child(even) td {
 }
 
 tr:hover td {
-  background: rgba(37, 99, 235, 0.04) !important;
-  transition: background-color 0.1s ease;
+  box-shadow: inset 0 0 0 1000px rgba(37, 99, 235, 0.04);
+  transition: box-shadow 0.1s ease;
 }
 
 tr {
@@ -332,6 +335,58 @@ input[type="checkbox"] {
   border: 1px solid var(--border-table);
   border-radius: 3px;
   font-family: var(--font-stack);
+}
+
+.numeric-filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.numeric-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.numeric-field input[type="number"] {
+  width: 70px;
+  font-size: 12px;
+  padding: 2px 4px;
+  border: 1px solid var(--border-table);
+  border-radius: 3px;
+  font-family: var(--font-stack);
+}
+
+/* Collapsible filter sections */
+.sidebar-section .filter-group {
+  max-height: 1000px;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out, padding 0.2s ease-out;
+  padding: 4px 16px 12px;
+}
+.sidebar-section.collapsed .filter-group {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.sidebar-section h3 {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-section h3::after {
+  content: '\2212';   /* minus/horizontal line for expanded */
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-muted);
+  line-height: 1;
+}
+.sidebar-section.collapsed h3::after {
+  content: '+';   /* plus for collapsed */
 }
 
 .clear-btn {
@@ -464,6 +519,10 @@ input[type="checkbox"] {
 #column-checklist label:hover,
 .dropdown-menu label:hover {
   background: var(--bg-alt-row);
+}
+
+.col-vis-wrapper {
+  position: relative;
 }
 
 /* ============================================================
