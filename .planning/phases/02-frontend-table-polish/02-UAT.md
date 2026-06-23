@@ -1,9 +1,9 @@
 ---
-status: complete
+status: resolved
 phase: 02-frontend-table-polish
-source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md
+source: 02-01-SUMMARY.md, 02-02-SUMMARY.md, 02-03-SUMMARY.md, 02-04-SUMMARY.md, 02-05-SUMMARY.md
 started: 2026-06-22T00:00:00Z
-updated: 2026-06-23T00:00:00Z
+updated: 2026-06-23T19:40:00Z
 ---
 
 ## Current Test
@@ -92,39 +92,39 @@ blocked: 0
 ## Gaps
 
 - truth: "Table renders all 402 rows without visually empty rows"
-  status: failed
-  reason: "User reported: numerous empty rows present"
+  status: resolved
+  reason: "Resolved by Plan 02-05: `state.allRows.filter()` in `loadData()` excludes rows with all-empty cell values"
   severity: minor
   test: 2
-  root_cause: ""
-  artifacts: []
+  root_cause: "Google Sheets export includes empty trailing rows"
+  artifacts: ["site/app.js (line 128: empty row filter)"]
   missing: []
   debug_session: ""
 - truth: "Sticky table header stays pinned on vertical scroll with drop shadow"
-  status: failed
-  reason: "User reported: Column headings and legend don't remain on scroll down — only top bar/search stays pinned"
+  status: resolved
+  reason: "Resolved by Plan 02-04: sticky top offset now uses JS-calculated legend-bar-height; drop shadow class added on scroll"
   severity: major
   test: 7
-  root_cause: ""
-  artifacts: []
+  root_cause: "Static top offset didn't account for legend bar height"
+  artifacts: ["site/style.css (#table-header sticky), site/app.js (scroll observer)"]
   missing: []
   debug_session: ""
 - truth: "Row hover highlight does not obscure cell text"
-  status: failed
-  reason: "User reported: hover white background wipes out white text in band-colored cells, making text invisible"
+  status: resolved
+  reason: "Resolved by Plan 02-04: hover effect changed from background-color to box-shadow inset overlay preserving all cell text readability"
   severity: major
   test: 8
-  root_cause: ""
-  artifacts: []
+  root_cause: "background-color on hover overwrote cell band colors with white text"
+  artifacts: ["site/style.css (tr:hover td box-shadow inset)"]
   missing: []
   debug_session: ""
 - truth: "Column visibility dropdown positioned under Columns button"
-  status: failed
-  reason: "User reported: dropdown appears far right of window while Columns button is about middle of screen"
+  status: resolved
+  reason: "Resolved by Plan 02-04: .col-vis-wrapper with position:relative provides positioning context for absolute dropdown"
   severity: cosmetic
   test: 13
-  root_cause: ""
-  artifacts: []
+  root_cause: "Dropdown was positioned relative to viewport not button wrapper"
+  artifacts: ["site/style.css (.col-vis-wrapper, #column-visibility-menu)"]
   missing: []
   debug_session: ""
 
