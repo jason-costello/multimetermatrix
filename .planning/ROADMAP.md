@@ -73,7 +73,7 @@ Plans:
 
 ### Phase 3: CI/CD & Deployment
 
-**Goal**: The site auto-refreshes weekly with up-to-date data from Google Sheets, deployed to GitHub Pages without committing data.json to git
+**Goal**: The site auto-refreshes weekly with up-to-date data from Google Sheets, deployed to GitHub Pages via artifact-based deployment
 
 **Depends on**: Phase 1, Phase 2
 
@@ -87,7 +87,12 @@ Plans:
 4. `.nojekyll` file exists in the deployment root, ensuring Pages serves the static site correctly (no Jekyll processing)
 5. If `meters build` exits non-zero (sheet structure changed), the workflow fails loudly with a clear error -- stale data is never deployed
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+**Wave 1**
+
+- [ ] 03-01-PLAN.md -- GitHub Actions workflow + .nojekyll + setup docs (wave 1)
 
 ## Progress
 
@@ -98,4 +103,4 @@ Phases execute in numeric order: 1 --> 2 --> 3
 |-------|----------------|--------|-----------|
 | 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
 | 2. Frontend Table + Polish | 5/5 | Complete   | 2026-06-23 |
-| 3. CI/CD & Deployment | 0/0 | Not started | - |
+| 3. CI/CD & Deployment | 0/1 | Planning | - |
