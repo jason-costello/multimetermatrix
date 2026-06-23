@@ -1,9 +1,10 @@
 ---
 phase: 02-frontend-table-polish
-verified: 2026-06-21T21:00:00Z
+verified: 2026-06-23T19:40:00Z
 status: passed
-score: 5/5 must-haves verified
+score: 11/11 must-haves verified
 overrides_applied: 0
+reverified_after: 02-05 gap closure
 gaps: []
 ---
 
@@ -27,6 +28,20 @@ gaps: []
 | 5   | Table is mobile-responsive with a horizontal scroll wrapper, and the footer shows the edition date + last refreshed timestamp from `data.json` | VERIFIED | Mobile responsive: media queries at 1024px (narrower padding) and 767px (sidebar drawer with `transform: translateX` animation, backdrop, X close, Escape key). Footer: `#footer-edition` with `#edition-date` and `#footer-refresh` with `#fetched-at` populated from `data.json` in `initUI()`. |
 
 **Score:** 5/5 truths verified
+
+### Gap-Closure Truths — Plans 02-04 & 02-05
+
+| #   | Truth | Status | Evidence |
+| --- | ----- | ------ | -------- |
+| 6   | Sticky table header stays pinned on vertical scroll with drop shadow | VERIFIED | `#table-header { position: sticky; top: calc(48px + var(--legend-bar-height, 44px)); z-index: 10; }` in `site/style.css`. `.header-shadow` class adds `box-shadow: 0 2px 4px rgba(0,0,0,0.08)` via JS scroll observer. Fixed from UAT gap (test 7). |
+| 7   | Row hover highlight preserves text readability | VERIFIED | `tr:hover td { box-shadow: inset 0 0 0 1000px rgba(37, 99, 235, 0.04); }` uses box-shadow overlay instead of background-color change — preserves cell background colors including white text on dark band colors. `prefers-reduced-motion` disables transition. Fixed from UAT gap (test 8). |
+| 8   | Column visibility dropdown positioned under Columns button | VERIFIED | `.col-vis-wrapper { position: relative; }` wraps button + menu. `#column-visibility-menu { position: absolute; right: 0; top: 100%; }` positions dropdown relative to wrapper. Fixed from UAT gap (test 13). |
+| 9   | Filter sections are collapsible — Band Scores and Flags collapsed by default, Numeric Filters open | VERIFIED | `initCollapsibleSections()` in `site/app.js` (line 651). Adds `.collapsed` class to `#sidebar-bands` and `#sidebar-flags` on init. Click handler on section h3 toggles `.collapsed`. CSS: `.sidebar-section.collapsed .filter-group { display: none; }` and `::after { content: '+'; }` indicator. Numeric section left open. |
+| 10  | Filter labels use full words via abbreviation map | VERIFIED | `ABBREVIATION_MAP` constant maps "V Accuracy" → "Voltage Accuracy", "I Accuracy" → "Current Accuracy". Applied via `ABBREVIATION_MAP[col] \|\| col` fallback in band, flag, and numeric filter label generation (`buildFiltersUI()`). |
+| 11  | Numeric filter min/max inputs on same horizontal row | VERIFIED | `<div class="numeric-filter-row">` wrapping two `<label class="numeric-field">` elements side by side. Min and Max inputs placed inline rather than stacked. CSS `.numeric-filter-row { display: flex; gap: 8px; }` and `.numeric-field { flex: 1; }`. |
+| 12  | Empty data rows filtered out at load time | VERIFIED | `state.allRows.filter()` in `loadData()` (line 128) checks each row for all-empty/null/whitespace values and excludes them. Empty-state check also updated from `data.rows.length === 0` to `state.allRows.length === 0` for consistency. Fixed from UAT gap (test 2). |
+
+**Gap-closure score:** 7/7 truths verified (4 from 02-04 + 3 from 02-05)
 
 ### Required Artifacts
 
@@ -79,19 +94,19 @@ All 14 Phase 2 requirements are declared in PLAN frontmatter across the 3 plans.
 
 | Requirement | Source Plans | Description | Status | Evidence |
 | ----------- | ------------ | ----------- | ------ | -------- |
-| UI-01 | 02-03 | Render all rows and columns | SATISFIED | `renderTableBody()` in app.js iterates all columns/state.columns and data.rows |
+| UI-01 | 02-03, 02-05 | Render all rows and columns | SATISFIED | `renderTableBody()` in app.js iterates all columns/state.columns and data.rows. 02-05 adds empty-row filtering. |
 | UI-02 | 02-01, 02-03 | Column header click sort | SATISFIED | Sort event delegation + `sortRows()` + `updateSortIndicators()` |
 | UI-03 | 02-01, 02-03 | Free-text search with results count | SATISFIED | `searchRows()` + debounced search + `el.resultsCount` |
-| UI-04 | 02-01, 02-03 | Band facet checkboxes | SATISFIED | `buildFiltersUI()` creates checkboxes for 29 band columns |
-| UI-05 | 02-01, 02-03 | Flag facet checkboxes | SATISFIED | `buildFiltersUI()` creates checkboxes for 37 flag columns |
-| UI-06 | 02-01, 02-03 | Numeric range filter (Price, Count, Yr) | SATISFIED | `buildFiltersUI()` creates min/max inputs + `filterRows()` numeric |
+| UI-04 | 02-01, 02-03 | Band facet checkboxes | SATISFIED | `buildFiltersUI()` creates checkboxes for 29 band columns. 02-04 adds collapsible section wrapper. |
+| UI-05 | 02-01, 02-03 | Flag facet checkboxes | SATISFIED | `buildFiltersUI()` creates checkboxes for 37 flag columns. 02-04 adds collapsible section wrapper. |
+| UI-06 | 02-01, 02-03, 02-05 | Numeric range filter (Price, Count, Yr) | SATISFIED | `buildFiltersUI()` creates min/max inputs + `filterRows()` numeric. 02-05 adds inline same-row layout. |
 | UI-07 | 02-01, 02-02, 02-03 | Color-coded cell backgrounds | SATISFIED | `getCellColors()` in engine.js, invoked in `renderTableBody()` |
 | UI-08 | 02-02, 02-03 | Legend display | SATISFIED | `initUI()` populates `#legend-bands` and `#legend-markers` |
-| UI-09 | 02-02, 02-03 | Sticky table header | SATISFIED | `#table-header { position: sticky; top: 0 }` in style.css |
+| UI-09 | 02-02, 02-03 | Sticky table header | SATISFIED | `#table-header { position: sticky; top: 0 }` in style.css. 02-04 fixes top offset with JS-calculated legend-bar-height. |
 | UI-10 | 02-02, 02-03 | Empty state | SATISFIED | `#empty-state` overlay with heading, body, and clear button |
 | UI-11 | 02-02, 02-03 | Footer with edition + timestamp | SATISFIED | `#edition-date` and `#fetched-at` populated in `initUI()` |
 | POL-01 | 02-02, 02-03 | Mobile responsive | SATISFIED | Media queries at 1024px, 767px sidebar drawer |
-| POL-02 | 02-02, 02-03 | Row hover highlight | SATISFIED | `tr:hover td { background: rgba(37,99,235,0.04) }` |
+| POL-02 | 02-02, 02-03 | Row hover highlight | SATISFIED | 02-04: `tr:hover td { box-shadow: inset 0 0 0 1000px rgba(37,99,235,0.04); }` preserves cell text. |
 | POL-03 | 02-02, 02-03 | Batch DOM insertion | SATISFIED | `replaceChildren()` + `insertAdjacentHTML('beforeend')`, 0 per-row appendChild |
 
 ### Anti-Patterns Found
@@ -106,9 +121,10 @@ None. All success criteria are verifiable from codebase analysis or automated ch
 
 ### Gaps Summary
 
-No gaps found. All 5 ROADMAP success criteria are satisfied, all 14 requirements are covered, all 3 plans' must-haves are verified. The actual row count in data.json is 402 (not 940+ as estimated in ROADMAP), but this is a data volume difference, not a code deficiency -- the code correctly renders all rows present in data.json regardless of count.
+No gaps remain. All 5 original ROADMAP success criteria + 7 gap-closure truths verified. All 14 requirements covered across 5 plans. All 4 UAT gaps (tests 2, 7, 8, 13) resolved by gap-closure plans 02-04 and 02-05. 402 rows in data.json (not 940+ as estimated in ROADMAP) is a data volume difference, not a code deficiency — the code correctly renders all rows present in data.json regardless of count.
 
 ---
 
-_Verified: 2026-06-21T21:00:00Z_
+_Verified: 2026-06-21T21:00:00Z (initial)_
+_Re-verified: 2026-06-23T19:40:00Z (after 02-05 gap closure)_
 _Verifier: Claude (gsd-verifier)_
