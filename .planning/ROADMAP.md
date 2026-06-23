@@ -57,17 +57,19 @@ Plans:
 4. Table has a sticky header on vertical scroll, rows highlight on hover, and an empty state message appears when filters match zero results
 5. Table is mobile-responsive with a horizontal scroll wrapper, and the footer shows the edition date + last refreshed timestamp from `data.json`
 
-**Plans**: 3 plans in 2 waves
+**Plans**: 5 plans in 2 waves
 
 Plans:
 **Wave 1** (parallel -- no file overlap)
 
 - [x] 02-01-PLAN.md -- TDD: data processing engine (filter, sort, search, color, parse, escape) in site/engine.js + tests
 - [x] 02-02-PLAN.md -- HTML page shell (index.html) + complete design system CSS (site/style.css)
+- [x] 02-04-PLAN.md -- Gap closure: layout & visual fixes (sticky legend/header, hover, column dropdown, numeric filter row CSS, collapsible section CSS)
 
 **Wave 2** (depends on Wave 1)
 
 - [x] 02-03-PLAN.md -- Application JS (site/app.js): data loading, table rendering, sidebar, search, sort, filters, mobile drawer, polish
+- [x] 02-05-PLAN.md -- Gap closure: collapsible filter sections, full-word filter labels, empty row filtering, numeric inline layout
 
 ### Phase 3: CI/CD & Deployment
 
@@ -95,5 +97,5 @@ Phases execute in numeric order: 1 --> 2 --> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
-| 2. Frontend Table + Polish | 3/3 | Complete   | 2026-06-21 |
+| 2. Frontend Table + Polish | 5/5 | Complete   | 2026-06-21 |
 | 3. CI/CD & Deployment | 0/0 | Not started | - |
