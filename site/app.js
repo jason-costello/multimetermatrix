@@ -180,6 +180,9 @@ function initUI(data) {
   // -- Measure legend bar height for sticky header offset --
   updateStickyOffsets();
 
+  // -- Initialize collapsible filter sections --
+  initCollapsibleSections();
+
   // -- Footer --
   el.editionDate.textContent = data.edition_date || '';
   if (data.fetched_at) {
@@ -619,6 +622,35 @@ function updateFilterCount() {
     el.filterCountBadge.hidden = false;
   } else {
     el.filterCountBadge.hidden = true;
+  }
+}
+
+// ===========================================================================
+// Collapsible Filter Sections
+// ===========================================================================
+
+/**
+ * Initialize collapsible filter sections in the sidebar.
+ * Each section h3 is clickable — toggles .collapsed class on parent section.
+ * Default: Numeric open, Band Scores + Flags collapsed.
+ */
+function initCollapsibleSections() {
+  var sections = document.querySelectorAll('#sidebar .sidebar-section');
+  // Close Band Scores and Flags by default
+  var bandSection = document.getElementById('band-filters');
+  var flagSection = document.getElementById('flag-filters');
+  if (bandSection) bandSection.classList.add('collapsed');
+  if (flagSection) flagSection.classList.add('collapsed');
+
+  // Add click handler on each h3 within a sidebar section
+  for (var i = 0; i < sections.length; i++) {
+    var h3 = sections[i].querySelector('h3');
+    if (!h3) continue;
+    (function(section) {
+      h3.addEventListener('click', function() {
+        section.classList.toggle('collapsed');
+      });
+    })(sections[i]);
   }
 }
 
