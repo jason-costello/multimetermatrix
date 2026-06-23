@@ -16,12 +16,26 @@ Users can quickly find and compare handheld multimeters by filtering and sorting
 - [x] Go CLI: `build` subcommand — parse xlsx → `data.json` with headers, values, bands, flags
 - [x] Color bucketing: nearest Euclidean RGB distance for score bands, exact match for categorical markers
 
+### Validated (Phase 2: Frontend Table + Polish)
+
+- [x] Static frontend: table view with all 51 columns, ~400 rows, color-coded cells with legend
+- [x] Column sort: click header to toggle asc/desc with ▲/▼ indicators
+- [x] Facet filters: band checkboxes (29 columns), flag checkboxes (37 columns), numeric range (Price/Count/Yr)
+- [x] Free-text search across all columns with debounce and results count
+- [x] Collapsible filter sections (Band Scores + Flags collapsed by default)
+- [x] Full-word filter labels via abbreviation map
+- [x] Empty row filtering at load time
+- [x] Numeric filter min/max inline layout
+- [x] Sticky table header with drop shadow on scroll
+- [x] Row hover highlight using box-shadow overlay (preserves cell text readability)
+- [x] Column visibility toggle dropdown
+- [x] Empty state when filters match zero results
+- [x] Mobile responsive with sidebar drawer at <768px
+- [x] Row density toggle (Compact/Comfortable/Spacious) with localStorage persistence
+- [x] Footer: edition date + last-refreshed timestamp from `data.json`
+
 ### Active
 
-- [ ] Static frontend: table view with all 51 columns, ~940 rows
-- [ ] Column sort: click header to toggle asc/desc
-- [ ] Facet filters: checkbox lists for bands/flags columns, free-text/range for raw values
-- [ ] Footer: edition date + last-refreshed timestamp from `data.json`
 - [ ] CI/CD: weekly GitHub Actions refresh + workflow_dispatch
 - [ ] GitHub Pages deployment
 
@@ -54,9 +68,11 @@ Users can quickly find and compare handheld multimeters by filtering and sorting
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Go CLI for data pipeline | excelize is the best Go xlsx library; single binary, easy CI | Validated Phase 1 |
-| Plain JS frontend (no framework) | GitHub Pages compatibility, zero build step, small scope | — Pending |
+| Plain JS frontend (no framework) | GitHub Pages compatibility, zero build step, small scope | Validated Phase 2 |
 | Color bucketing via Euclidean RGB distance | Google Sheets conditional formatting produces interpolated gradient colors, not exact legend matches | Validated Phase 1 |
 | `data.json` committed to repo | Simplifies GitHub Pages serving; avoids cross-origin fetch issues | Validated Phase 1 |
+| Box-shadow hover (not background-color) | Preserves cell text readability on colored band backgrounds | Validated Phase 2 |
+| Vanilla JS DOM batching (replaceChildren + insertAdjacentHTML) | No per-row appendChild; supports 400+ rows smoothly | Validated Phase 2 |
 
 ---
-*Last updated: 2026-06-21 after Phase 1 completion*
+*Last updated: 2026-06-23 after Phase 2 completion*
