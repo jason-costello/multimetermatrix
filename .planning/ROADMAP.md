@@ -9,7 +9,7 @@ Granularity: Coarse (3 phases for 25 v1 requirements). Each phase delivers a coh
 ## Phases
 
 - [x] **Phase 1: CLI Pipeline** - Go CLI that downloads xlsx, parses it, buckets colors, and emits validated data.json (completed 2026-06-21)
-- [x] **Phase 2: Frontend Table + Polish** - Sortable, filterable HTML table with band faceting, legend, responsive design (completed 2026-06-21)
+- [ ] **Phase 2: Frontend Table + Polish** - Sortable, filterable HTML table with band faceting, legend, responsive design
 - [ ] **Phase 3: CI/CD & Deployment** - Weekly auto-refresh and GitHub Pages deployment via GitHub Actions
 
 ## Phase Details
@@ -57,23 +57,21 @@ Plans:
 4. Table has a sticky header on vertical scroll, rows highlight on hover, and an empty state message appears when filters match zero results
 5. Table is mobile-responsive with a horizontal scroll wrapper, and the footer shows the edition date + last refreshed timestamp from `data.json`
 
-**Plans**: 5 plans in 2 waves
+**Plans**: 3 plans in 2 waves
 
 Plans:
 **Wave 1** (parallel -- no file overlap)
 
-- [x] 02-01-PLAN.md -- TDD: data processing engine (filter, sort, search, color, parse, escape) in site/engine.js + tests
-- [x] 02-02-PLAN.md -- HTML page shell (index.html) + complete design system CSS (site/style.css)
-- [x] 02-04-PLAN.md -- Gap closure: layout & visual fixes (sticky legend/header, hover, column dropdown, numeric filter row CSS, collapsible section CSS)
+- [ ] 02-01-PLAN.md -- TDD: data processing engine (filter, sort, search, color, parse, escape) in site/engine.js + tests
+- [ ] 02-02-PLAN.md -- HTML page shell (index.html) + complete design system CSS (site/style.css)
 
 **Wave 2** (depends on Wave 1)
 
-- [x] 02-03-PLAN.md -- Application JS (site/app.js): data loading, table rendering, sidebar, search, sort, filters, mobile drawer, polish
-- [x] 02-05-PLAN.md -- Gap closure: collapsible filter sections, full-word filter labels, empty row filtering, numeric inline layout
+- [ ] 02-03-PLAN.md -- Application JS (site/app.js): data loading, table rendering, sidebar, search, sort, filters, mobile drawer, polish
 
 ### Phase 3: CI/CD & Deployment
 
-**Goal**: The site auto-refreshes weekly with up-to-date data from Google Sheets, deployed to GitHub Pages via artifact-based deployment
+**Goal**: The site auto-refreshes weekly with up-to-date data from Google Sheets, deployed to GitHub Pages without committing data.json to git
 
 **Depends on**: Phase 1, Phase 2
 
@@ -90,9 +88,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-**Wave 1**
-
-- [ ] 03-01-PLAN.md -- GitHub Actions workflow + .nojekyll + setup docs (wave 1)
+- [x] 03-01-PLAN.md -- CI/CD pipeline: GitHub Actions workflow, .nojekyll, PROJECT.md docs
 
 ## Progress
 
@@ -102,5 +98,5 @@ Phases execute in numeric order: 1 --> 2 --> 3
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
-| 2. Frontend Table + Polish | 5/5 | Complete   | 2026-06-23 |
-| 3. CI/CD & Deployment | 0/1 | Planning | - |
+| 2. Frontend Table + Polish | 0/3 | Planning  | - |
+| 3. CI/CD & Deployment | 1/1 | Complete   | 2026-06-24 |
