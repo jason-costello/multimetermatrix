@@ -85,7 +85,10 @@ Plans:
 4. `.nojekyll` file exists in the deployment root, ensuring Pages serves the static site correctly (no Jekyll processing)
 5. If `meters build` exits non-zero (sheet structure changed), the workflow fails loudly with a clear error -- stale data is never deployed
 
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [x] 03-01-PLAN.md -- CI/CD pipeline: GitHub Actions workflow, .nojekyll, PROJECT.md docs
 
 ## Progress
 
@@ -96,4 +99,4 @@ Phases execute in numeric order: 1 --> 2 --> 3
 |-------|----------------|--------|-----------|
 | 1. CLI Pipeline | 2/2 | Complete   | 2026-06-21 |
 | 2. Frontend Table + Polish | 0/3 | Planning  | - |
-| 3. CI/CD & Deployment | 0/0 | Not started | - |
+| 3. CI/CD & Deployment | 1/1 | Complete   | 2026-06-24 |
