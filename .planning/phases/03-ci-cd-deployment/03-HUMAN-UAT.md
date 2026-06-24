@@ -1,14 +1,14 @@
 ---
-status: partial
+status: resolved
 phase: 03-ci-cd-deployment
 source: [03-01-VERIFICATION.md]
 started: "2026-06-23T22:00:00Z"
-updated: "2026-06-23T22:00:00Z"
+updated: "2026-06-24T00:00:00Z"
 ---
 
 ## Current Test
 
-[awaiting human testing]
+[all tests passed]
 
 ## Tests
 
@@ -21,14 +21,14 @@ updated: "2026-06-23T22:00:00Z"
 **Why human:** This is a one-time manual configuration in the GitHub web UI. It cannot be verified from the codebase. The steps are documented in `PROJECT.md` lines 132-135.
 
 expected: Repo Settings -> Pages -> Source is set to "GitHub Actions" (not "Deploy from branch")
-result: [pending]
+result: passed — GitHub Actions source set, custom domain dmm.w6moo.com configured
 
 ## Summary
 
 total: 1
-passed: 0
+passed: 1
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
