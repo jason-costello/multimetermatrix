@@ -150,3 +150,5 @@ go.mod
 ### Failure Safety
 - If `meters fetch` or `meters build` exits non-zero (sheet structure changed, HTTP error), the deploy job is skipped automatically via `needs: build` dependency
 - Stale data is never deployed — the existing GitHub Pages deployment stays up with the last known good state
+
+> **Last updated:** 2026-06-24 — Phase 3 (CI/CD & Deployment) complete. GitHub Actions workflow ready. Pages source configured for `jason-costello/multimetermatrix`, deploying to `dmm.w6moo.com`.
