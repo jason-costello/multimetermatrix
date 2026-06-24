@@ -130,9 +130,17 @@ go.mod
 - **Permissions:** contents:write (git commit), pages:write + id-token:write (Pages deploy)
 
 ### GitHub Pages Setup (one-time)
-1. Go to repo Settings → Pages → Source: select "GitHub Actions"
+1. Go to repo **Settings → Pages → Source**: select **"GitHub Actions"**
 2. The workflow will deploy automatically on schedule or via `workflow_dispatch`
 3. Deploy artifact contains: `index.html`, `data.json`, `site/*` (app.js, engine.js, style.css), `.nojekyll`
+
+**Repository:** `git@github.com:jason-costello/multimetermatrix.git`
+**Pages URL:** `https://dmm.w6moo.com` (custom domain)
+
+> **Setup required:** After the first push of `.github/workflows/refresh.yml`, go to
+> GitHub repo Settings → Pages → Source → "GitHub Actions". The `build` job uploads
+> the artifact; the `deploy` job deploys it. No branch or folder selection needed.
+> If using a custom domain, configure it in Settings → Pages → Custom domain.
 
 ### data.json Strategy
 - `data.json` is committed to git for local dev convenience (`git clone` + open index.html works immediately)
